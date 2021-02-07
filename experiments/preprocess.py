@@ -64,6 +64,18 @@ def flatten(data, col='Sentence'):
     df[col] = pd.Series(map(lambda l: ' '.join(l), df[col]))
     return df
 
+def to_categorical(data, oh_cols=['Positive', 'Negative', 'Neutral']):
+    """
+        Revert one hot encoding. Useful with some sklearn functions that expect categorical data
+    """
+    df = data.copy()
+    df['Sentiment'] = pd.Series()
+    df.loc[df['Positive'] == 1, 'Sentiment'] = 1
+    df.loc[df['Negative'] == 1, 'Sentiment'] = 2
+    df.loc[df['Neutral'] == 1, 'Sentiment'] = 3   
+    df = df.drop(oh_cols, axis=1)
+    return df
+
 def bag_of_words(data, col='Sentence'):
     df = data.copy()
     vectorizer = CountVectorizer()
