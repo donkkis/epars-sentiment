@@ -3,3 +3,5 @@ data/
 .venv/
 *.ipynb_checkpoints/
 articles/
+__pycache__/
+.env
