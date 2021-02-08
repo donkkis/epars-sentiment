@@ -5,3 +5,4 @@ data/
 articles/
 __pycache__/
 .env
+mlruns/

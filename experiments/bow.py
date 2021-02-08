@@ -1,34 +1,54 @@
+import os
+import mlflow
+import logging
 import preprocess as pr
+import numpy as np
+
 from sklearn.model_selection import KFold
 from sklearn.svm import LinearSVC
+from dotenv import load_dotenv
 
-data = pr.read_data()
-data = pr.tokenize_df(data)
-data = pr.strip_stopwords(data)
-data = pr.strip_punctuation(data)
-data = pr.frequent_only(data)
-data = pr.flatten(data)
-data = pr.bag_of_words(data)
-data = pr.to_categorical(data)
+load_dotenv()
+logging.getLogger("mlflow").setLevel(logging.ERROR)
 
-test_samples = round(len(data) * 0.2)
+def _preprocess():
+    data = pr.read_data()
+    data = pr.tokenize_df(data)
+    data = pr.strip_stopwords(data)
+    data = pr.strip_punctuation(data)
+    data = pr.frequent_only(data)
+    data = pr.flatten(data)
+    data = pr.bag_of_words(data)
+    data = pr.to_categorical(data)
+    return data
 
-kf = KFold(n_splits=5, shuffle=True, random_state=42)
+def run():
 
-models = []
-acc_train = []
-acc_test = []
+    kf = KFold(n_splits=5, shuffle=True, random_state=42)
+    models = []
+    acc_train = []
+    acc_test = []
 
-X = data.drop(['Sentiment'], axis=1)
-y = data[['Sentiment']]
+    data = _preprocess()
+    X = data.drop(['Sentiment'], axis=1)
+    y = data[['Sentiment']]
 
-for i, (train_idx, test_idx) in enumerate(kf.split(data)):
-    print('Fold', i)
-    X_train, X_test = X.loc[train_idx, :], X.loc[test_idx, :]
-    y_train, y_test = y.loc[train_idx, :], y.loc[test_idx, :]
-    model = LinearSVC().fit(X_train, y_train)
-    acc_train.append(model.score(X_train, y_train))
-    acc_test.append(model.score(X_test, y_test))
+    for i, (train_idx, test_idx) in enumerate(kf.split(data)):
+        print('Fold', i)
+        X_train, X_test = X.loc[train_idx, :], X.loc[test_idx, :]
+        y_train, y_test = y.loc[train_idx, :], y.loc[test_idx, :]
+        model = LinearSVC().fit(X_train, y_train)
+        acc_train.append(model.score(X_train, y_train))
+        acc_test.append(model.score(X_test, y_test))
 
-print(acc_train)
-print(acc_test)
+    print('Mean train accuracy:', np.mean(acc_train))
+    print('Mean test accuracy:', np.mean(acc_test))
+    mlflow.log_param('folds_train_acc', [f'{a:.3f}' for a in acc_train])
+    mlflow.log_param('folds_test_acc', [f'{a:.3f}' for a in acc_test])
+
+if __name__ == '__main__':
+    mlflow.set_tracking_uri(os.getenv('MLFLOW_TRACKING_URI'))
+    mlflow.set_experiment('bagofwords')
+    mlflow.sklearn.autolog()
+    with mlflow.start_run():
+        run()
