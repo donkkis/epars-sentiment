@@ -76,9 +76,9 @@ def to_categorical(data, oh_cols=['Positive', 'Negative', 'Neutral']):
     df = df.drop(oh_cols, axis=1)
     return df
 
-def bag_of_words(data, col='Sentence', ngram_range=(1, 1)):
+def vectorize(data, col='Sentence', vectorizer=CountVectorizer, ngram_range=(1, 1)):
     df = data.copy()
-    vectorizer = CountVectorizer(ngram_range=ngram_range)
+    vectorizer = vectorizer(ngram_range=ngram_range)
     X = vectorizer.fit_transform(data[col])
     df = df.drop(col, axis=1)
     X = pd.DataFrame(X.todense())
