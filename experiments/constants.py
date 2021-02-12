@@ -169,3 +169,11 @@ PHRASES_NEG = [
 
 FREQUENT = list(set(FREQUENT_NEG + FREQUENT_POS + FREQUENT_NEUTR))
 PHRASES = PHRASES_POS + PHRASES_NEG
+
+with open('../data/negative-words.txt', 'r') as f:
+    SENTILEX_NEG = [line.strip('\n') for line in f if line and not line.startswith(';')]
+
+with open('../data/positive-words.txt', 'r') as f:
+    SENTILEX_POS = [line.strip('\n') for line in f if line and not line.startswith(';')]
+
+SENTILEX = list(set(SENTILEX_POS + SENTILEX_NEG))

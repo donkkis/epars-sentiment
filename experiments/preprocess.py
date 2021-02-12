@@ -84,7 +84,7 @@ def vectorize(data, col='Sentence', vectorizer=CountVectorizer, ngram_range=(1, 
     df = pd.concat([X, df], axis=1)
     return df
 
-def semantic_feats(data, col='Sentence', phrases=PHRASES):
+def semantic_feats(data, col='Sentence_orig', phrases=PHRASES):
     df = data.copy()
     min_len = min([len(t) for t in [p.split(' ') for p in phrases]])
     max_len = max([len(t) for t in [p.split(' ') for p in phrases]])

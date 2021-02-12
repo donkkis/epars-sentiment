@@ -5,6 +5,7 @@ import argparse
 import preprocess as pr
 import numpy as np
 
+from constants import PHRASES, SENTILEX
 from sklearn.model_selection import KFold
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.svm import LinearSVC
@@ -18,14 +19,16 @@ CLASSIFIER = LinearSVC
 
 def _preprocess():
     data = pr.read_data()
+    data['Sentence_orig'] = data['Sentence']
     data = pr.tokenize_df(data)
     data = pr.strip_stopwords(data)
     data = pr.strip_punctuation(data)
     data = pr.frequent_only(data)
     data = pr.flatten(data)
     data = pr.vectorize(data, ngram_range=(1, 1), vectorizer=CountVectorizer)
-    data = pr.semantic_feats(data)
+    data = pr.semantic_feats(data, phrases=PHRASES + SENTILEX)
     data = data.drop('Sentence', axis=1)
+    data = data.drop('Sentence_orig', axis=1)
     data = pr.to_categorical(data)
     return data
 
