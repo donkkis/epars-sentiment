@@ -1,10 +1,12 @@
 import os
 import mlflow
 import logging
+import argparse
 import preprocess as pr
 import numpy as np
 
 from sklearn.model_selection import KFold
+from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.svm import LinearSVC
 from sklearn.metrics import balanced_accuracy_score
 from dotenv import load_dotenv
@@ -21,12 +23,14 @@ def _preprocess():
     data = pr.strip_punctuation(data)
     data = pr.frequent_only(data)
     data = pr.flatten(data)
-    data = pr.bag_of_words(data)
+    data = pr.vectorize(data, ngram_range=(1, 1), vectorizer=CountVectorizer)
+    data = pr.semantic_feats(data)
+    data = data.drop('Sentence', axis=1)
     data = pr.to_categorical(data)
     return data
 
 def run(classifier=None):
-    global CLASSIFIER
+    global CLASSIFIER, ARGS
     if not classifier:
         classifier = CLASSIFIER
 
@@ -48,13 +52,21 @@ def run(classifier=None):
 
     print('Mean train accuracy:', np.mean(acc_train))
     print('Mean test accuracy:', np.mean(acc_test))
-    mlflow.log_param('folds_train_acc', [f'{a:.3f}' for a in acc_train])
-    mlflow.log_param('folds_test_acc', [f'{a:.3f}' for a in acc_test])
-    mlflow.log_artifact(__file__)
+    if not ARGS.no_log:
+        mlflow.log_param('folds_train_acc', [f'{a:.3f}' for a in acc_train])
+        mlflow.log_param('folds_test_acc', [f'{a:.3f}' for a in acc_test])
+        mlflow.log_artifact(__file__)   
 
 if __name__ == '__main__':
-    mlflow.set_tracking_uri(os.getenv('MLFLOW_TRACKING_URI'))
-    mlflow.set_experiment('bagofwords')
-    mlflow.sklearn.autolog()
-    with mlflow.start_run():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--no_log', action='store_true')
+    ARGS = parser.parse_args()
+
+    if ARGS.no_log:
         run()
+    else:
+        mlflow.set_tracking_uri(os.getenv('MLFLOW_TRACKING_URI'))
+        mlflow.set_experiment('bagofwords')
+        mlflow.sklearn.autolog()
+        with mlflow.start_run():
+            run()   

@@ -150,6 +150,22 @@ FREQUENT_NEUTR = [
     'product'
 ]
 
+PHRASES_POS = [
+    'based on the',
+    'bioequivalence',
+    'bioequivalent',
+    'biosimilarity',
+    'accepted by the chmp',
+    'comparable',
+    'these objectives have been met',
+    'the available safety data are considered supportive'
+]
+
+PHRASES_NEG = [
+    'should be provided',
+    'data are considered very limited',
+    'chmp considers the following measures',
+]
+
 FREQUENT = list(set(FREQUENT_NEG + FREQUENT_POS + FREQUENT_NEUTR))
-
-
+PHRASES = PHRASES_POS + PHRASES_NEG

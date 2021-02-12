@@ -3,7 +3,7 @@ import string
 
 import pandas as pd
 
-from constants import STOP_WORDS, FREQUENT
+from constants import STOP_WORDS, FREQUENT, PHRASES
 from nltk.tokenize import word_tokenize
 from sklearn.feature_extraction.text import CountVectorizer
 from dotenv import load_dotenv
@@ -80,7 +80,16 @@ def vectorize(data, col='Sentence', vectorizer=CountVectorizer, ngram_range=(1, 
     df = data.copy()
     vectorizer = vectorizer(ngram_range=ngram_range)
     X = vectorizer.fit_transform(data[col])
-    df = df.drop(col, axis=1)
+    X = pd.DataFrame(X.todense())
+    df = pd.concat([X, df], axis=1)
+    return df
+
+def semantic_feats(data, col='Sentence', phrases=PHRASES):
+    df = data.copy()
+    min_len = min([len(t) for t in [p.split(' ') for p in phrases]])
+    max_len = max([len(t) for t in [p.split(' ') for p in phrases]])
+    vectorizer = CountVectorizer(ngram_range=(min_len, max_len), vocabulary=phrases)
+    X = vectorizer.fit_transform(data[col])
     X = pd.DataFrame(X.todense())
     df = pd.concat([X, df], axis=1)
     return df
