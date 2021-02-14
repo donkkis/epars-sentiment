@@ -26,7 +26,3 @@ Alternatively, experiments can be run using the ```--no_log``` flag to omit mlfl
 ## Running experiments
 
 An example experiment ```bow.py``` is provided in ```experiments``` directory. Use the ```--no_log``` if you did not configure mlflow logging.
-
-## Report
-
-A short presentation outlining the findings in preliminary study can be found under the ```report``` directory
