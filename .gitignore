@@ -1,9 +1,6 @@
-DataScienceInterview/
 data/sentences_with_sentiment.xlsx
 .venv
 *.ipynb_checkpoints/
-articles/
 __pycache__/
 .env
 *mlruns/
-report/
